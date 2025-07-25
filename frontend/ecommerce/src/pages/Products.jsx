@@ -11,7 +11,7 @@ const Products = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8000/api/products/")
+      .get("https://techronyx-fullstackweb.onrender.com/api/products/")
       .then((res) => {
         setProducts(res.data);
         setSortedProducts(res.data); // Default to unsorted initially

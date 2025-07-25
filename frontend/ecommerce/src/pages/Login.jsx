@@ -21,7 +21,7 @@ function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:8000/api/users/login/", {
+      const response = await axios.post("https://techronyx-fullstackweb.onrender.com/api/users/login/", {
         username,
         password,
       });

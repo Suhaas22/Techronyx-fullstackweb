@@ -37,7 +37,7 @@ function ProductDetail() {
     const fetchProduct = async () => {
       try {
         const response = await axiosInstance.get(`/products/${id}/`);
-        const baseURL = "http://localhost:8000";
+        const baseURL = "https://techronyx-fullstackweb.onrender.com";
 
         // Clone and fix image paths in the 'details' object
         const fixedDetails = { ...response.data.details };

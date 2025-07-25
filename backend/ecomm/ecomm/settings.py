@@ -209,7 +209,7 @@ CORS_ALLOW_ALL_ORIGINS = False
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "https://techronyx-full-git-1a99ae-bommadevarasuhaas7-gmailcoms-projects.vercel.app/",  # Add this after Vercel deploy
+    "https://techronyx-full-git-1a99ae-bommadevarasuhaas7-gmailcoms-projects.vercel.app",  # Add this after Vercel deploy
 ]
 
 CORS_ALLOW_CREDENTIALS = True

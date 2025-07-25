@@ -24,7 +24,7 @@ function Signup() {
     e.preventDefault();
 
     try {
-      const { data } = await axios.post("http://localhost:8000/api/users/register/", {
+      const { data } = await axios.post("https://techronyx-fullstackweb.onrender.com/api/users/register/", {
         email,
         fname,
         lname,
