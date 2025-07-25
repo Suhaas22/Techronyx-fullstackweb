@@ -1,3 +1,4 @@
+import 'aos/dist/aos.css';
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import Home from "./pages/Home";
@@ -14,7 +15,7 @@ import ContactPage from "./pages/Contact";
 
 import ScrollToTop from "./ScrollToTop";
 import AOS from 'aos';
-import 'aos/dist/aos.css';
+
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
