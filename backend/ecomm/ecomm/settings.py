@@ -210,7 +210,9 @@ CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "https://techronyx-fullstackweb-wltw-8x6fp5xpo.vercel.app",
-    "https://techronyx-fullstackweb-cc17.vercel.app",  
+    "https://techronyx-fullstackweb-cc17.vercel.app", 
+    "https://techronyx-fullstackweb-wltw-psnglf8oe.vercel.app",  # Vercel Frontend
+
 ]
 
 
