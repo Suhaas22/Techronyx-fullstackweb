@@ -1,0 +1,29 @@
+.login-wrapper {
+  background-color: #f0f0f0;
+}
+
+.glass-card {
+  width: 100%;
+  max-width: 450px; 
+  height : 500px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 3rem 2rem;
+}
+
+.glass-input {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+}
+
+.glass-input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.glass-input:focus {
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+  box-shadow: none;
+}
