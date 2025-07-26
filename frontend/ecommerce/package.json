@@ -3,13 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^7.0.0",
+    "aos": "^2.3.4",
+    "bootstrap": "^5.3.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-scripts": "5.0.1",
-    "aos": "^2.3.4",
     "react-icons": "^5.5.0",
-    "react-toastify": "^11.0.5",
-    "bootstrap": "^5.3.7"
+    "react-scripts": "5.0.1",
+    "react-toastify": "^11.0.5"
   },
   "scripts": {
     "start": "react-scripts start",
