@@ -34,7 +34,7 @@ def getroutes(request):
 class ProductListView(APIView):
     def get(self, request):
         products = Product.objects.all()
-        serializer = ProductSerializer(products, many=True)
+        serializer = ProductSerializer(products, many=True, context={'request': request})
         return Response(serializer.data)
 
 @api_view(['GET'])
@@ -42,7 +42,7 @@ def getproduct(request, pk):
     print(f"Fetching product with id: {pk}")
     try:
         product = Product.objects.get(id=pk)
-        serializer = ProductSerializer(product, many=False)
+        serializer = ProductSerializer(product, many=False, context={'request': request})
         return Response(serializer.data)
     except Product.DoesNotExist:
         return Response({'detail': 'Product not found'}, status=404)

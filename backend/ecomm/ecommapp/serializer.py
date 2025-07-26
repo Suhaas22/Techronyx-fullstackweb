@@ -45,6 +45,14 @@ class UserSerializerWithToken(UserSerializer):
 
 class ProductDetailSerializer(serializers.ModelSerializer):
     title = serializers.CharField(source='product.title', read_only=True)
+    image1 = serializers.SerializerMethodField()
+    image2 = serializers.SerializerMethodField()
+    image3 = serializers.SerializerMethodField()
+    image4 = serializers.SerializerMethodField()
+    gallery1 = serializers.SerializerMethodField()
+    gallery2 = serializers.SerializerMethodField()
+    gallery3 = serializers.SerializerMethodField()
+    gallery4 = serializers.SerializerMethodField()
 
     class Meta:
         model = ProductDetail
@@ -58,17 +66,52 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             'discount', 'offer', 'stock_status', 'description'
         ]
 
+    def get_image1(self, obj):
+        request = self.context.get('request')
+        return request.build_absolute_uri(obj.image1.url) if obj.image1 else None
+
+    def get_image2(self, obj):
+        request = self.context.get('request')
+        return request.build_absolute_uri(obj.image2.url) if obj.image2 else None
+
+    def get_image3(self, obj):
+        request = self.context.get('request')
+        return request.build_absolute_uri(obj.image3.url) if obj.image3 else None
+
+    def get_image4(self, obj):
+        request = self.context.get('request')
+        return request.build_absolute_uri(obj.image4.url) if obj.image4 else None
+
+    def get_gallery1(self, obj):
+        request = self.context.get('request')
+        return request.build_absolute_uri(obj.gallery1.url) if obj.gallery1 else None
+
+    def get_gallery2(self, obj):
+        request = self.context.get('request')
+        return request.build_absolute_uri(obj.gallery2.url) if obj.gallery2 else None
+
+    def get_gallery3(self, obj):
+        request = self.context.get('request')
+        return request.build_absolute_uri(obj.gallery3.url) if obj.gallery3 else None
+
+    def get_gallery4(self, obj):
+        request = self.context.get('request')
+        return request.build_absolute_uri(obj.gallery4.url) if obj.gallery4 else None
 
 
 # product serializer
 
 class ProductSerializer(serializers.ModelSerializer):
-    details = ProductDetailSerializer(read_only=True) 
+    details = ProductDetailSerializer(read_only=True)
+    image = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
         fields = '__all__'
 
+    def get_image(self, obj):
+        request = self.context.get('request')
+        return request.build_absolute_uri(obj.image.url) if obj.image else None
 
 # cart item serializer
 
