@@ -18,6 +18,17 @@ from .serializer import (
     ProductDetailSerializer
 )
 
+from django.http import JsonResponse
+from .models import Product
+
+def fix_image_path(request):
+    try:
+        product = Product.objects.get(id=7)
+        product.image = 'products/details/boultmain.png'
+        product.save()
+        return JsonResponse({'status': 'success', 'message': 'Image path updated'})
+    except Product.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Product not found'})
 
 
 @api_view(['GET'])

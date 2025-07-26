@@ -5,7 +5,7 @@ from .views import (
     ProductListView,
     MyTokenObtainPairView, getUserProfile, getUsers, registerUser,
     CartItemViewSet,
-    getproduct,
+    getproduct, fix_image_path
 )
 
 
@@ -16,6 +16,7 @@ router.register(r'cartitems', CartItemViewSet, basename='cartitem')
 
 urlpatterns = [
     path('', include(router.urls)),  
+    path('fix-image/', fix_image_path),
     path('products/', ProductListView.as_view(), name='product-list'),
     path('products/<int:pk>/', getproduct, name='product-detail'),
     path('users/login/', MyTokenObtainPairView.as_view(), name='token-obtain-pair'),
