@@ -103,7 +103,7 @@ const handleAddToCart = async (e) => {
   <Link to={`/product/${id}`} className="text-decoration-none text-dark">
     <Card.Img
       variant="top"
-      src={`http://localhost:8000${image}`}
+      src={image}
       className="product-img p-3 rounded-4"
       style={{ height: "240px", objectFit: "contain" }}
     />
