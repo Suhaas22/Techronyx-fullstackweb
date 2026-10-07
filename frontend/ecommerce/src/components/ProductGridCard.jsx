@@ -1,6 +1,6 @@
 import { Card, Badge, Button } from "react-bootstrap";
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import axiosInstance from "../utils/axios";
 import { toast } from "react-toastify";
 import "./ProductGridCard.css"; 
@@ -17,7 +17,6 @@ function ProductGridCard({
   offer,
   discount,
 }) {
-  const navigate = useNavigate();
   const [isAdding, setIsAdding] = useState(false);
 const handleAddToCart = async (e) => {
   e.preventDefault();
@@ -100,7 +99,7 @@ const handleAddToCart = async (e) => {
 
 
   {/* Image */}
-  <Link to={id === 7 ? `/product/${id}` : "/underdevelopment"} className="text-decoration-none text-dark">
+  <Link to={`/product/${id}`} className="text-decoration-none text-dark">
     <Card.Img
       variant="top"
       src={image}
@@ -111,7 +110,7 @@ const handleAddToCart = async (e) => {
 
   <Card.Body className="d-flex flex-column justify-content-between">
     <div>
-      <Link to={id === 7 ? `/product/${id}` : "/underdevelopment"} className="text-decoration-none text-dark">
+      <Link to={`/product/${id}`} className="text-decoration-none text-dark">
         <Card.Title className="fs-6 fw-semibold text-wrap mb-1">{title}</Card.Title>
       </Link>
 

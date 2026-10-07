@@ -14,7 +14,6 @@ from pathlib import Path
 from datetime import timedelta
 import os
 import dj_database_url
-from decouple import config
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -35,10 +34,15 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'your-default-secret-key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.environ.get(
+        'ALLOWED_HOSTS',
+        'localhost,127.0.0.1,.onrender.com',
+    ).split(',')
+    if host.strip()
+]
 
-
-print(">>> ALLOWED_HOSTS =", ALLOWED_HOSTS)
 
 # Application definition
 
@@ -56,11 +60,11 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-        'corsheaders.middleware.CorsMiddleware',  # MUST come before CommonMiddleware
+    # Must be before CommonMiddleware so preflight requests receive CORS headers.
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -204,20 +208,46 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-CORS_ALLOW_ALL_ORIGINS = False
-
-
-CORS_ALLOWED_ORIGINS = [
+# Allow the frontend to talk to the API from local development and deployed Vercel apps.
+# Keep credentialed requests working without exposing the API to every domain on the internet.
+BASE_CORS_ORIGINS = [
     "http://localhost:3000",
-    "https://techronyx-fullstackweb-wltw-8x6fp5xpo.vercel.app",
-    "https://techronyx-fullstackweb-cc17.vercel.app", 
-    "https://techronyx-fullstackweb-wltw-psnglf8oe.vercel.app",  
-    "https://techronyx-fullstackweb-k11f-gsofo6wtn.vercel.app"# Vercel Frontend
-
+    "http://localhost:5173",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:5173",
 ]
 
+ENV_CORS_ORIGINS = os.environ.get("CORS_ALLOWED_ORIGINS", "")
+if ENV_CORS_ORIGINS:
+    BASE_CORS_ORIGINS.extend(origin.strip() for origin in ENV_CORS_ORIGINS.split(",") if origin.strip())
+
+CORS_ALLOWED_ORIGINS = list(dict.fromkeys(BASE_CORS_ORIGINS))
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https://techronyx-fullstackweb(?:-[a-z0-9-]+)?\.vercel\.app$",
+    r"^http://localhost:\d+$",
+    r"^http://127\.0\.0\.1:\d+$",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    origin for origin in CORS_ALLOWED_ORIGINS if origin.startswith("http")
+] + [
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:5173",
+]
 
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "origin",
+    "x-csrftoken",
+    "x-requested-with",
+]
+CORS_EXPOSE_HEADERS = ["Content-Type", "X-CSRFToken"]
 
 
 MEDIA_URL = '/media/'

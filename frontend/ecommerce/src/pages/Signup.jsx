@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Form, Button, Card, InputGroup } from "react-bootstrap";
-import axios from "axios";
+import axios from "../utils/axios";
 import { useNavigate } from "react-router-dom";
 import background from "../assets/loginbackground5_PhotoGrid.png";
 import logo from "../assets/techronyxsignwhitelogonobg.png";
@@ -13,6 +13,8 @@ function Signup() {
   const [fname, setFname] = useState("");
   const [lname, setLname] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,9 +24,11 @@ function Signup() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setIsSubmitting(true);
 
     try {
-      const { data } = await axios.post("https://techronyx-fullstackweb.onrender.com/api/users/register/", {
+      const { data } = await axios.post("users/register/", {
         email,
         fname,
         lname,
@@ -44,7 +48,9 @@ function Signup() {
 });
       navigate("/login");
     } catch (error) {
-      alert(error.response?.data?.detail || "Registration failed");
+      setError(error.response?.data?.detail || "Unable to register. Make sure the backend server is running.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -124,11 +130,13 @@ function Signup() {
 
           <Button
             type="submit"
-            className="w-100 rounded-pill mb-3 fw-bold"
-            style={{ backgroundColor: "#FFA07A", border: "none" }}
+            className="auth-submit-button w-100 rounded-pill mb-3 fw-bold"
+            disabled={isSubmitting}
           >
-            Register
+            {isSubmitting ? "Registering..." : "Register"}
           </Button>
+
+          {error && <p className="auth-error mb-3">{error}</p>}
 
           <p className="text-white small">
             Already have an account?{" "}

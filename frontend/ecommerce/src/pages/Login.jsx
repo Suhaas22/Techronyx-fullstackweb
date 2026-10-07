@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Form, Button, Card, InputGroup } from "react-bootstrap";
-import axios from "axios";
+import axios from "../utils/axios";
 import background from "../assets/loginbackground5_PhotoGrid.png";
 import logo from '../assets/techronyxsignwhitelogonobg.png' 
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -11,6 +11,7 @@ function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,8 +21,10 @@ function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError("");
+    setIsSubmitting(true);
     try {
-      const response = await axios.post("https://techronyx-fullstackweb.onrender.com/api/users/login/", {
+      const response = await axios.post("users/login/", {
         username,
         password,
       });
@@ -30,7 +33,9 @@ function Login() {
             localStorage.setItem("token", response.data.token);
       navigate("/");
     } catch (err) {
-      setError("Invalid username or password.");
+      setError(err.response?.data?.detail || "Unable to sign in. Make sure the backend server is running.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -99,10 +104,10 @@ function Login() {
 
           <Button
             type="submit"
-            className="w-100 rounded-pill mb-3 fw-bold"
-            style={{ backgroundColor: "#FFA07A", border: "none" }}
+            className="auth-submit-button w-100 rounded-pill mb-3 fw-bold"
+            disabled={isSubmitting}
           >
-            SIGN IN
+            {isSubmitting ? "Signing in..." : "SIGN IN"}
           </Button>
 
           <p className="text-white my-3 small">— Or Sign In With —</p>

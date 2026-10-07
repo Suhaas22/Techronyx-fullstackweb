@@ -1,9 +1,17 @@
 // src/utils/axios.js
 import axios from 'axios';
 
+const apiBaseUrl = process.env.REACT_APP_API_URL || (
+  process.env.NODE_ENV === 'development'
+    ? 'http://127.0.0.1:8000/api/'
+    : 'https://techronyx-fullstackweb.onrender.com/api/'
+);
+
 const axiosInstance = axios.create({
-  baseURL: 'https://techronyx-fullstackweb.onrender.com/api/',
-  withCredentials: true, 
+  // REACT_APP_API_URL overrides this for alternate deployments.
+  baseURL: apiBaseUrl,
+  // Avoid leaving submit buttons in a loading state forever when the API is offline.
+  timeout: 15000,
 });
 
 axiosInstance.interceptors.request.use(

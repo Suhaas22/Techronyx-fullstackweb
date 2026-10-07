@@ -1,22 +1,28 @@
 import React, { useEffect, useState } from "react";
 import ProductGridCard from "../components/ProductGridCard";
 import { Container, Row, Col, Dropdown, ButtonGroup } from "react-bootstrap";
-import axios from "axios";
+import axios from "../utils/axios";
 import { IoPricetag } from "react-icons/io5";
 
 const Products = () => {
   const [products, setProducts] = useState([]);
   const [sortedProducts, setSortedProducts] = useState([]);
   const [sortOption, setSortOption] = useState("featured");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     axios
-      .get("https://techronyx-fullstackweb.onrender.com/api/products/")
+      .get("products/")
       .then((res) => {
         setProducts(res.data);
         setSortedProducts(res.data); // Default to unsorted initially
       })
-      .catch((err) => console.error("Error fetching products:", err));
+      .catch((err) => {
+        console.error("Error fetching products:", err);
+        setError("Unable to load products. Start the backend server and try again.");
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const handleSort = (option) => {
@@ -76,6 +82,11 @@ const Products = () => {
 
       {/* Product Grid */}
       <Row className="g-4">
+        {loading && <p className="text-white">Loading products...</p>}
+        {error && <p className="text-warning">{error}</p>}
+        {!loading && !error && sortedProducts.length === 0 && (
+          <p className="text-white">No products are available yet.</p>
+        )}
         {sortedProducts.map((prod) => (
           <Col key={prod.id} xs={12} sm={6} md={4} lg={4}>
             <ProductGridCard {...prod} />

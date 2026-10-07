@@ -1,5 +1,21 @@
-.slick-prev:before,
-.slick-next:before {
-  font-size: 24px;
-  color: #333; 
-}
+.product-details-page { color: #172033; }
+.product-details-media { background: #fff; border-radius: 1.25rem; }
+.product-details-media img { height: 460px; object-fit: contain; }
+.product-details-eyebrow { color: #667085; font-size: .78rem; font-weight: 700; letter-spacing: .1em; margin-bottom: .45rem; text-transform: uppercase; }
+.product-details-title { color: #172033; font-size: clamp(1.7rem, 3vw, 2.45rem); font-weight: 700; line-height: 1.2; margin-bottom: 1rem; }
+.product-details-rating { color: #9a6700; font-weight: 700; }
+.product-details-muted, .product-details-old-price { color: #667085; }
+.product-details-price { color: #172033; font-size: 2rem; font-weight: 700; }
+.product-details-offer { color: #067647; font-weight: 600; }
+.product-details-description { color: #344054; line-height: 1.7; max-width: 62ch; }
+.product-details-cart-button { background: #172033; border: 0; border-radius: 999px; font-weight: 700; padding: .75rem 2rem; }
+.product-details-cart-button:hover:not(:disabled) { background: #2c3d5d; }
+.product-details-benefit { border-left: 2px solid #d0d5dd; display: flex; flex-direction: column; font-size: .78rem; gap: .25rem; min-height: 3.5rem; padding-left: .65rem; }
+.product-details-benefit strong { color: #172033; }
+.product-details-benefit span { color: #667085; }
+.product-details-information { background: #f2f4f7; border-radius: 1.25rem; color: #172033; padding: 1.5rem; }
+.product-details-information strong, .product-details-information span { display: block; }
+.product-details-information strong { font-size: .78rem; margin-bottom: .3rem; text-transform: uppercase; }
+.product-details-information span { color: #475467; }
+.product-details-gallery-image { background: #fff; border-radius: .9rem; box-shadow: 0 .25rem 1rem rgba(16, 24, 40, .1); height: 220px; object-fit: contain; padding: .75rem; width: 100%; }
+@media (max-width: 767px) { .product-details-media img { height: 320px; } .product-details-price { font-size: 1.65rem; } }

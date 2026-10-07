@@ -1,447 +1,150 @@
 import React, { useEffect, useState } from "react";
-import axiosInstance from "../utils/axios";
 import { useParams } from "react-router-dom";
-
-import {
-  Card,
-  Container,
-  Row,
-  Col,
-  Button,
-  Badge,
-  Table,
-} from "react-bootstrap";
-import Carousel from "react-bootstrap/Carousel";
+import { Badge, Button, Card, Carousel, Col, Container, Row } from "react-bootstrap";
 import { StarFill } from "react-bootstrap-icons";
-import ListGroup from "react-bootstrap/ListGroup";
-import Accordion from "react-bootstrap/Accordion";
-import Slider from "react-slick"; // Add this at the top if not already present
+import { toast } from "react-toastify";
+import axios from "../utils/axios";
+import "./ProductDetails.css";
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faBolt,
-  faMicrophone,
-  faHeadphones,
-  faShieldAlt,
-  faTruck,
-  faUndoAlt,
-  faQuestionCircle,
-} from "@fortawesome/free-solid-svg-icons";
-import { faBluetooth } from "@fortawesome/free-brands-svg-icons";
+const webGalleryImages = {
+  1: ["apple-earpods-web.png"],
+  2: ["jbl-t50hi-web.png"],
+  3: ["boat-bassheads-web.jpg"],
+  4: ["airdopes-141-web.jpg"],
+  5: ["airdopes-141-web.jpg"],
+  6: ["airdopes-141-web.jpg"],
+  8: ["bose-quietcomfort-web.png"],
+  9: ["bose-quietcomfort-web.png"],
+};
 
-function ProductDetail() {
+function ProductDetails() {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
+  const [error, setError] = useState("");
+  const [isAdding, setIsAdding] = useState(false);
 
   useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const response = await axiosInstance.get(`/products/${id}/`);
-        const baseURL = "https://techronyx-fullstackweb.onrender.com";
+    let isCurrent = true;
+    setProduct(null);
+    setError("");
 
-        // Clone and fix image paths in the 'details' object
-        const fixedDetails = { ...response.data.details };
-        const imageKeys = [
-          "image1",
-          "image2",
-          "image3",
-          "image4",
-          "gallery1",
-          "gallery2",
-          "gallery3",
-          "gallery4",
-        ];
+    axios.get(`products/${id}/`)
+      .then((response) => {
+        if (isCurrent) setProduct(response.data);
+      })
+      .catch((requestError) => {
+        if (!isCurrent) return;
+        setError(requestError.response?.status === 404
+          ? "This product could not be found."
+          : "Unable to load this product. Please try again.");
+      });
 
-        imageKeys.forEach((key) => {
-          if (fixedDetails[key] && !fixedDetails[key].startsWith("http")) {
-            fixedDetails[key] = `${baseURL}${fixedDetails[key]}`;
-          }
-        });
-
-        // Set updated product in state
-        setProduct({
-          ...response.data,
-          details: fixedDetails,
-        });
-      } catch (error) {
-        console.error("Error fetching product:", error);
-      }
-    };
-
-    fetchProduct();
+    return () => { isCurrent = false; };
   }, [id]);
 
-  if (!product || !product.details) return <div>Loading...</div>;
-
-  const {
-    title,
-    image1,
-    image2,
-    image3,
-    image4,
-    gallery1,
-    gallery2,
-    gallery3,
-    gallery4,
-    rating,
-    reviews,
-    new_price,
-    old_price,
-    discount,
-    offer,
-    stock_status,
-    description,
-  } = product.details;
-
-  const handleAddToCart = async (productId) => {
-    console.log("Adding product with ID:", productId);
+  const addToCart = async () => {
+    setIsAdding(true);
     try {
-      const response = await axiosInstance.post("/cartitems/", {
-        product_id: productId,
-        quantity: 1,
-      });
-      if (response.status === 201) {
-        console.log("Item added to cart:", response.data);
-      }
-    } catch (err) {
-      console.error("Failed to add item to cart:", err);
+      await axios.post("cartitems/", { product_id: product.id, quantity: 1 });
+      toast.success("Item added to cart!");
+    } catch (requestError) {
+      toast.error(requestError.response?.status === 401
+        ? "Please sign in to add items to your cart."
+        : "Unable to add this item to your cart.");
+    } finally {
+      setIsAdding(false);
     }
   };
 
-  const galleryImages = [gallery1, gallery2, gallery3, gallery4];
+  if (error) return <Container className="py-5 text-center"><h2>{error}</h2></Container>;
+  if (!product) return <Container className="py-5 text-center">Loading product…</Container>;
 
-  if (!product) {
-    return <div className="text-light p-4">Product not found.</div>;
-  }
+  const details = product.details || {};
+  const title = product.title;
+  const rating = details.rating || product.rating;
+  const reviews = details.reviews ?? product.reviews;
+  const newPrice = details.new_price || product.new_price;
+  const oldPrice = details.old_price || product.old_price;
+  const discount = details.discount || product.discount;
+  const offer = details.offer || product.offer;
+  const formatPrice = (price) => String(price).startsWith("₹") ? price : `₹${price}`;
+  const mediaBaseUrl = axios.defaults.baseURL.replace(/\/api\/?$/, "");
+  const supplementaryImages = (webGalleryImages[product.id] || [])
+    .map((image) => `${mediaBaseUrl}/media/product-gallery/${image}`);
+  const images = [details.image1, details.image2, details.image3, details.image4, product.image, ...supplementaryImages]
+    .filter(Boolean)
+    .filter((image, index, list) => list.indexOf(image) === index);
+  const gallery = [details.gallery1, details.gallery2, details.gallery3, details.gallery4, ...supplementaryImages]
+    .filter(Boolean)
+    .filter((image, index, list) => list.indexOf(image) === index);
 
   return (
-    <Container className="my-5">
+    <Container className="product-details-page my-5">
       <Row className="g-5">
         <Col md={6}>
-          <div
-            style={{
-              position: "sticky",
-              top: "100px", // Adjust based on your navbar height
-              zIndex: 2,
-            }}
-            className="d-flex justify-content-center"
-          >
-            <Carousel style={{ maxWidth: "800px", width: "100%" }}>
-              {[image1, image2, image3, image4].map((img, idx) => (
-                <Carousel.Item key={idx}>
-                  <img
-                    src={img}
-                    alt={`Slide ${idx + 1}`}
-                    className="d-block w-100 rounded"
-                    style={{ height: "500px", objectFit: "contain" }}
-                  />
+          <Card className="product-details-media border-0 shadow-sm p-3">
+            <Carousel variant="dark" indicators={images.length > 1} controls={images.length > 1}>
+              {images.map((image, index) => (
+                <Carousel.Item key={image}>
+                  <img src={image} alt={`${title} view ${index + 1}`} className="d-block w-100" />
                 </Carousel.Item>
               ))}
             </Carousel>
-          </div>
+          </Card>
         </Col>
-
         <Col md={6}>
-          <h2 style={{ color: "silver" }}>{title}</h2>
-          <div className="d-flex align-items-center mb-2">
-            <StarFill color="gold" className="me-1" />
-            <span className="text-warning fw-bold">{rating}</span>
-            <small className="text-muted ms-2">({reviews} reviews)</small>
+          <p className="product-details-eyebrow">Techronyx Audio</p>
+          <h1 className="product-details-title">{title}</h1>
+          <div className="d-flex align-items-center gap-2 mb-3">
+            <StarFill color="#f5a524" />
+            <span className="product-details-rating">{rating}</span>
+            <span className="product-details-muted">({reviews} reviews)</span>
           </div>
-
           <div className="mb-3">
-            <span className="fs-3 fw-bold me-3">{new_price}</span>
-            <span className="text-muted text-decoration-line-through">
-              {old_price}
-            </span>
-            <Badge bg="warning" className="ms-2" style={{ color: "black" }}>
-              {discount} Off
-            </Badge>
-            <p className="text-muted small mb-0">(Incl. all taxes)</p>
+            <span className="product-details-price me-3">{formatPrice(newPrice)}</span>
+            <span className="product-details-old-price text-decoration-line-through">{formatPrice(oldPrice)}</span>
+            {discount && <Badge bg="warning" text="dark" className="ms-2">{discount} off</Badge>}
           </div>
-
-          <div className="text-success mb-3">{offer}</div>
-
-          <div className="mb-3">
-            <strong>Status:</strong>{" "}
-            <span
-              className={
-                stock_status === "In Stock" ? "text-success" : "text-danger"
-              }
-            >
-              {stock_status}
-            </span>
-          </div>
-
-          <div className="d-flex gap-3 mb-4">
-            <Button
-              variant="dark"
-              className="px-4 py-2 rounded-pill fw-semibold d-flex align-items-center gap-2 shadow-sm"
-              style={{ transition: "all 0.2s ease-in-out" }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.transform = "scale(1.04)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.transform = "scale(1)")
-              }
-              onClick={() => handleAddToCart(product.id)}
-            >
-              Add to Cart
-            </Button>
-
-            <Button
-              variant="warning"
-              className="px-4 py-2 rounded-pill fw-semibold text-dark d-flex align-items-center gap-2 shadow-sm"
-              style={{ transition: "all 0.2s ease-in-out" }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.transform = "scale(1.04)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.transform = "scale(1)")
-              }
-            >
-              Buy Now
-            </Button>
-          </div>
-
-          <div className="mb-4">
-            <strong>Free Delivery:</strong> in 2-3 business days.
-            <p>
-              or fastest delivery <strong>Tomorrow 9am to 1pm</strong>
-            </p>
-            <p className="text-muted">Order within 5hr 19min</p>
-          </div>
-
-          <Accordion defaultActiveKey="1">
-            <Accordion.Item eventKey="0">
-              <Accordion.Header>Quantity: 1</Accordion.Header>
-              <Accordion.Body>
-                <ListGroup>
-                  {[2, 3, 4, 5, 6].map((qty) => (
-                    <ListGroup.Item key={qty}>{qty}</ListGroup.Item>
-                  ))}
-                </ListGroup>
-              </Accordion.Body>
-            </Accordion.Item>
-          </Accordion>
-
-          <div className="mt-5">
-            <h4 className="mb-3">Key Features</h4>
-            <Row className="g-3">
-              <Col xs={12} md={6}>
-                <FontAwesomeIcon icon={faHeadphones} /> 13mm drivers with deep
-                bass
-              </Col>
-              <Col xs={12} md={6}>
-                <FontAwesomeIcon icon={faBolt} style={{ color: "#ffc800" }} />{" "}
-                Up to 30 hours battery
-              </Col>
-              <Col xs={12} md={6}>
-                <FontAwesomeIcon icon={faBluetooth} /> Bluetooth 5.4
-              </Col>
-              <Col xs={12} md={6}>
-                <FontAwesomeIcon
-                  icon={faMicrophone}
-                  style={{ color: "#ffdd00" }}
-                />{" "}
-                Voice assistant support
-              </Col>
-            </Row>
-          </div>
+          {offer && <p className="product-details-offer">{offer}</p>}
+          <p className="product-details-description">{details.description || "Product details will be available soon."}</p>
+          <p className={details.stock_status && details.stock_status !== "In Stock" ? "text-danger fw-semibold" : "text-success fw-semibold"}>
+            {details.stock_status || "In Stock"}
+          </p>
+          <Button className="product-details-cart-button" size="lg" disabled={isAdding} onClick={addToCart}>
+            {isAdding ? "Adding…" : "Add to Cart"}
+          </Button>
+          <Row className="g-3 mt-4">
+            <Col xs={4}><div className="product-details-benefit"><strong>Free delivery</strong><span>On eligible orders</span></div></Col>
+            <Col xs={4}><div className="product-details-benefit"><strong>7-day returns</strong><span>Easy return policy</span></div></Col>
+            <Col xs={4}><div className="product-details-benefit"><strong>Secure payment</strong><span>Protected checkout</span></div></Col>
+          </Row>
         </Col>
       </Row>
 
-      <div className="mt-5">
-        <h4>Description</h4>
-        <p>{description}</p>
-      </div>
-
-      <div className="mt-4">
-        <h4>Specifications</h4>
-        <Table striped bordered hover>
-          <tbody>
-            <tr>
-              <td>Driver Size</td>
-              <td>40mm</td>
-            </tr>
-            <tr>
-              <td>Bluetooth Version</td>
-              <td>5.4</td>
-            </tr>
-            <tr>
-              <td>Water Resistance</td>
-              <td>IPX5</td>
-            </tr>
-            <tr>
-              <td>Charging Port</td>
-              <td>Type-C</td>
-            </tr>
-            <tr>
-              <td>EQ Modes</td>
-              <td>Bass, Rock, Pop, Vocal</td>
-            </tr>
-            <tr>
-              <td>Gaming Mode</td>
-              <td>Low Latency</td>
-            </tr>
-            <tr>
-              <td>Warranty</td>
-              <td>1 Year</td>
-            </tr>
-          </tbody>
-        </Table>
-      </div>
-
-      <div className="my-5">
-        <h4 className="mb-4">Product Gallery</h4>
-        <Slider
-          dots={true}
-          infinite={true}
-          speed={500}
-          slidesToShow={2}
-          slidesToScroll={1}
-          autoplay={true}
-          autoplaySpeed={2000}
-          pauseOnHover={true}
-          responsive={[
-            {
-              breakpoint: 768,
-              settings: {
-                slidesToShow: 1,
-              },
-            },
-          ]}
-        >
-          {galleryImages.map((img, idx) => (
-            <div key={idx} className="px-2">
-              <img
-                src={img}
-                alt={`gallery ${idx}`}
-                className="img-fluid rounded shadow-sm"
-                style={{
-                  maxHeight: "600px",
-                  objectFit: "cover",
-                  width: "100%",
-                }}
-              />
-            </div>
-          ))}
-        </Slider>
-      </div>
-
-      <div className="mt-4">
-        <h4>FAQs</h4>
-        <Accordion>
-          <Accordion.Item eventKey="0">
-            <Accordion.Header>Is the product water-resistant?</Accordion.Header>
-            <Accordion.Body>Yes, it is rated IPX5.</Accordion.Body>
-          </Accordion.Item>
-          <Accordion.Item eventKey="1">
-            <Accordion.Header>Can I use it while charging?</Accordion.Header>
-            <Accordion.Body>
-              Yes, you can use it in wired mode using AUX.
-            </Accordion.Body>
-          </Accordion.Item>
-          <Accordion.Item eventKey="2">
-            <Accordion.Header>What is the warranty procedure?</Accordion.Header>
-            <Accordion.Body>
-              Register on our website to avail your 1-Year Warranty.
-            </Accordion.Body>
-          </Accordion.Item>
-        </Accordion>
-      </div>
-
-      <div className="mt-5 p-3 bg-light rounded text-center">
-        <Row className="g-4">
-          <Col>
-            <FontAwesomeIcon icon={faShieldAlt} size="2x" className="mb-2" />
-            <div>1-Year Warranty</div>
-          </Col>
-          <Col>
-            <FontAwesomeIcon icon={faTruck} size="2x" className="mb-2" />
-            <div>Fast & Free Delivery</div>
-          </Col>
-          <Col>
-            <FontAwesomeIcon icon={faUndoAlt} size="2x" className="mb-2" />
-            <div>Easy 7-Day Return</div>
-          </Col>
-          <Col>
-            <FontAwesomeIcon
-              icon={faQuestionCircle}
-              size="2x"
-              className="mb-2"
-            />
-            <div>Support Available</div>
-          </Col>
+      <section className="product-details-information mt-5">
+        <h2 className="h4 mb-3">Product information</h2>
+        <Row className="g-3">
+          <Col md={3}><strong>Rating</strong><span>{rating} / 5</span></Col>
+          <Col md={3}><strong>Reviews</strong><span>{reviews}</span></Col>
+          <Col md={3}><strong>Offer</strong><span>{discount || "Available"}</span></Col>
+          <Col md={3}><strong>Availability</strong><span>{details.stock_status || "In Stock"}</span></Col>
         </Row>
-      </div>
+      </section>
 
-      <div className="mt-5">
-        <h4 className="mb-4">Customer Reviews</h4>
-        <Row className="g-4">
-          {[
-            {
-              name: "John D.",
-              rating: 5,
-              text: "Absolutely love these headphones! The bass is amazing and battery lasts forever.",
-              date: "July 10, 2025",
-            },
-            {
-              name: "Priya S.",
-              rating: 4,
-              text: "Very comfortable to wear. Great for calls and music. Only wish it came in more colors.",
-              date: "July 15, 2025",
-            },
-            {
-              name: "Alex M.",
-              rating: 5,
-              text: "Fast delivery and solid sound quality. Excellent value for the price.",
-              date: "July 20, 2025",
-            },
-          ].map((review, idx) => (
-            <Col md={4} key={idx}>
-              <Card className="h-100 shadow-sm border-0 rounded-4">
-                <Card.Body>
-                  <div className="d-flex align-items-center mb-3">
-                    <div
-                      className="rounded-circle bg-dark text-white d-flex justify-content-center align-items-center"
-                      style={{
-                        width: "40px",
-                        height: "40px",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {review.name.charAt(0)}
-                    </div>
-                    <div className="ms-3">
-                      <h6 className="mb-0">{review.name}</h6>
-                      <div className="text-warning d-flex">
-                        {[...Array(review.rating)].map((_, i) => (
-                          <StarFill key={i} />
-                        ))}
-                        {[...Array(5 - review.rating)].map((_, i) => (
-                          <StarFill key={i} color="#e4e5e9" />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                  <Card.Text
-                    className="text-muted"
-                    style={{ fontSize: "0.95rem" }}
-                  >
-                    {review.text}
-                  </Card.Text>
-                </Card.Body>
-                <Card.Footer className="bg-transparent border-0 text-muted small text-end">
-                  Reviewed on {review.date}
-                </Card.Footer>
-              </Card>
-            </Col>
-          ))}
-        </Row>
-      </div>
+      {gallery.length > 0 && (
+        <section className="mt-5">
+          <h2 className="h4 mb-3">Product gallery</h2>
+          <Row className="g-3">
+            {gallery.map((image, index) => (
+              <Col key={image} xs={12} md={6} lg={3}>
+                <img src={image} alt={`${title} gallery ${index + 1}`} className="product-details-gallery-image" />
+              </Col>
+            ))}
+          </Row>
+        </section>
+      )}
     </Container>
   );
 }
 
-export default ProductDetail;
+export default ProductDetails;
